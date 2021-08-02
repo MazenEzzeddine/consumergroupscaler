@@ -26,7 +26,7 @@ public class Scaler {
     Scaler() {
     }
 
-    public static final String CONSUMER_GROUP = "testgroup3";
+    public static  String CONSUMER_GROUP;
     public static int numberOfPartitions;
     static boolean scaled = false;
     public static AdminClient admin = null;
@@ -38,6 +38,9 @@ public class Scaler {
     public static Map<TopicPartition, Long> partitionToLag = new HashMap<>();
     public static Map<MemberDescription, Float> maxConsumptionRatePerConsumer = new HashMap<>();
     public static Map<MemberDescription, Long> consumerToLag = new HashMap<>();
+
+    public static  String mode;
+
 
 
     static boolean firstIteration = true;
@@ -66,6 +69,8 @@ public class Scaler {
         choice = System.getenv("CHOICE");
         uth= Float.parseFloat(System.getenv("uth"));
         dth= Float.parseFloat(System.getenv("dth"));
+        CONSUMER_GROUP = System.getenv("CONSUMER_GROUP");
+        mode = System.getenv("Mode");
 
 
         log.info("sleep is {}", sleep);
@@ -89,6 +94,8 @@ public class Scaler {
         for (int j = 0; j < 4; j++)
             Xx[0][j] = 0;
 
+
+        //regressor array
         X = new Array2DRowRealMatrix(Xx);
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +164,11 @@ public class Scaler {
             }
             if(!firstIteration) {
                 //justPredict3(consumerGroupDescriptionMap);
-                scaleDecision2(consumerGroupDescriptionMap);
+                if(mode.equalsIgnoreCase("proactive")){
+                    justPredict3(consumerGroupDescriptionMap);
+                } else {
+                    scaleDecision2(consumerGroupDescriptionMap);
+                }
 
             } else {
                 firstIteration = false;

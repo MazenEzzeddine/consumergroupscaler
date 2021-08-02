@@ -13,9 +13,9 @@ ENV DEBUG_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address
 #COPY ./scripts/ /bin
 COPY ./src/main/resources/log4j2.properties /bin/log4j2.properties
 
-ADD target/KafkaControllerAndScaler-1.0-SNAPSHOT.jar /
+ADD target/Controller-1.0-SNAPSHOT.jar /
 
-#CMD ["java", "DEBUG_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" , "-jar" , "/KafkaControllerAndScaler-1.0-SNAPSHOT.jar"]
+#CMD ["java", "DEBUG_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" , "-jar" , "/Controller-1.0-SNAPSHOT.jar"]
 
 
-ENTRYPOINT [ "sh", "-c", "java $DEBUG_OPTIONS -jar /KafkaControllerAndScaler-1.0-SNAPSHOT.jar" ]
+ENTRYPOINT [ "sh", "-c", "java $DEBUG_OPTIONS -jar /Controller-1.0-SNAPSHOT.jar" ]
