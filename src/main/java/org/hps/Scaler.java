@@ -17,6 +17,10 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+
+
+
+//this is a working version
 public class Scaler {
     static RLS rls;
     static double[][] Xx;
