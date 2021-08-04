@@ -268,6 +268,8 @@ public class Scaler {
         long totallag = 0;
         int size = consumerGroupDescriptionMap.get(Scaler.CONSUMER_GROUP).members().size();
         log.info("Currently we have this number of consumers {}", size);
+        log.info("=================================:");
+
 
         long totalpoff;
         long totalcoff;
@@ -298,7 +300,6 @@ public class Scaler {
             totallag += consumerToLag.get(memberDescription);
 
         }
-        log.info("=================================:");
         log.info("totalArrivalRate {}, totalconsumptionRate {}, totallag {}",
                 totalArrivalRate * 1000, totalConsumptionRate * 1000, totallag);
         ///////////////////////////////////////////////////prediction code//////////////////////////////////////////
@@ -594,6 +595,7 @@ public class Scaler {
         long totallag = 0;
         int size = consumerGroupDescriptionMap.get(Scaler.CONSUMER_GROUP).members().size();
         log.info("Currently we have this number of consumers {}", size);
+        log.info("=================================:");
         for (MemberDescription memberDescription : consumerGroupDescriptionMap.get(Scaler.CONSUMER_GROUP).members()) {
             long totalpoff = 0;
             long totalcoff = 0;
@@ -611,7 +613,6 @@ public class Scaler {
             if (arrivalRatePerConsumer >= consumptionRatePerConsumer) {
                 // TODO do something
             }
-            log.info("=================================:");
             if (consumptionRatePerConsumer > maxConsumptionRatePerConsumer.getOrDefault(memberDescription, 0.0f)) {
                 maxConsumptionRatePerConsumer.put(memberDescription, consumptionRatePerConsumer);
             }
@@ -625,7 +626,7 @@ public class Scaler {
         log.info("shall we up scale totalArrivalrate {}, max  consumption rate {}",
                 totalArrivalRate *1000, (size *poll* uth)/(float)SEC);
 
-        if ((totalArrivalRate *1000) > ((size *poll * uth)/(float)SEC))  {
+        if ((totalArrivalRate *1000) > ((size *poll * uth)/(float)SEC) )  {
             if (size < numberOfPartitions) {
                 log.info("Consumers are less than nb partition we can scale");
                 try (final KubernetesClient k8s = new DefaultKubernetesClient()) {
@@ -643,7 +644,7 @@ public class Scaler {
                 log.info("Consumers are equal to nb partitions we can not scale up anymore");
             }
         }
-        else if ((totalArrivalRate *1000)  < (((size-1) *poll * dth)/(float)SEC))  {
+        else if ((totalArrivalRate *1000)  < (((size-1) *poll * dth)/(float)SEC) && totalArrivalRate>0)  {
             try (final KubernetesClient k8s = new DefaultKubernetesClient()) {
                 ServiceAccount fabric8 = new ServiceAccountBuilder().withNewMetadata().withName("fabric8").endMetadata().build();
                 k8s.serviceAccounts().inNamespace("default").createOrReplace(fabric8);
