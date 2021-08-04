@@ -23,9 +23,10 @@ import java.util.concurrent.ExecutionException;
 //this is a working version
 public class Scaler {
     static RLS rls;
-    static double[][] Xx;
-    static RealMatrix X;
-    static int iteration = 0;
+    static double[][] regArr;
+    static RealMatrix regMatrix;
+    static int iteration;
+    static int num_vars;
 
     Scaler() {
     }
@@ -91,20 +92,21 @@ public class Scaler {
         props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, 3000);
         admin = AdminClient.create(props);
         /////////////////////////////////////////////////////////////
-        rls = new RLS(4, 0.98);
+        num_vars = 4;
+        rls = new RLS(num_vars, 0.98);
         iteration = 0;
-        Xx = new double[1][4];
+        regArr = new double[1][num_vars];
 
-        for (int j = 0; j < 4; j++)
-            Xx[0][j] = 0;
+        for (int j = 0; j < num_vars; j++)
+            regArr[0][j] = 0;
 
 
         //regressor array
-        X = new Array2DRowRealMatrix(Xx);
+        regMatrix = new Array2DRowRealMatrix(regArr);
 
         ///////////////////////////////////////////////////////////////////////////////////////
         while (true) {
-            log.info("===============Start Iteration====================" +
+            log.info("=================Start Iteration===============" +
                     "=======");
             log.info("Iteration {}", iteration);
 
@@ -232,30 +234,29 @@ public class Scaler {
             double y1 = Double.parseDouble(String.valueOf((totalArrivalRate*1000)));
             log.info(" iteration {} last time  prediction and arrival rate {}", iteration, (float) (prediction)) ;
             log.info(" iteration {} current actual value of  arrival rate = {}", iteration, y1);
-            rls.add_obs(X.transpose(), y1);
-            for(int j = 0; j < 3; j++)
-                Xx[0][j] = Xx[0][j + 1];
-            Xx[0][3] = y1;
-            X = new Array2DRowRealMatrix(Xx);
-            log.info(X);
-            prediction = (rls.getW().transpose().multiply(X.transpose())).getEntry(0, 0);
+            rls.add_obs(regMatrix.transpose(), y1);
+            for(int j = 0; j < num_vars-1; j++)
+                regArr[0][j] = regArr[0][j + 1];
+            regArr[0][num_vars-1] = y1;
+            regMatrix = new Array2DRowRealMatrix(regArr);
+            log.info(regMatrix);
+            prediction = (rls.getW().transpose().multiply(regMatrix.transpose())).getEntry(0, 0);
             log.info(" Iteration {} prediction  next arrival rate {}", iteration, (float) (prediction));
-            iteration++;
         } else {
             double y1 = Double.parseDouble(String.valueOf((totalArrivalRate*1000)));
             log.info(" iteration {} last time  prediction  and arrival rate {}", iteration, (float) (prediction)) ;
             log.info(" iteration {} current actual value of  arrival rate = {}", iteration, y1);
-            rls.add_obs(X.transpose(), y1);
-            for(int j = 0; j < 3; j++)
-                Xx[0][j] = Xx[0][j + 1];
-            Xx[0][3] = y1;
-            X = new Array2DRowRealMatrix(Xx);
-            log.info(X);
-            prediction = (rls.getW().transpose().multiply(X.transpose())).getEntry(0, 0);
+            rls.add_obs(regMatrix.transpose(), y1);
+            for(int j = 0; j < num_vars-1; j++)
+                regArr[0][j] = regArr[0][j + 1];
+            regArr[0][num_vars-1] = y1;
+            regMatrix = new Array2DRowRealMatrix(regArr);
+            log.info(regMatrix);
+            prediction = (rls.getW().transpose().multiply(regMatrix.transpose())).getEntry(0, 0);
             log.info(" Iteration {} prediction for next  arrival rate is {}", iteration, (float) (prediction));
-            iteration++;
             log.info("=================================:");
         }
+        iteration++;
     }
 
 
@@ -303,13 +304,13 @@ public class Scaler {
             double y1 = Double.parseDouble(String.valueOf((totalArrivalRate * 1000)));
             log.info(" iteration {} last time  prediction and arrival rate {}", iteration, (float) (prediction));
             log.info(" iteration {} current actual value of  arrival rate = {}", iteration, y1);
-            rls.add_obs(X.transpose(), y1);
-            for(int j = 0; j < 3; j++)
-                Xx[0][j] = Xx[0][j + 1];
-            Xx[0][3] = y1;
-            X = new Array2DRowRealMatrix(Xx);
-            log.info(X);
-            prediction = (rls.getW().transpose().multiply(X.transpose())).getEntry(0, 0);
+            rls.add_obs(regMatrix.transpose(), y1);
+            for(int j = 0; j <  num_vars -1; j++)
+                regArr[0][j] = regArr[0][j + 1];
+            regArr[0][num_vars -1] = y1;
+            regMatrix = new Array2DRowRealMatrix(regArr);
+            log.info(regMatrix);
+            prediction = (rls.getW().transpose().multiply(regMatrix.transpose())).getEntry(0, 0);
             log.info(" Iteration {} prediction  next arrival rate {}", iteration, (float) (prediction));
           //  iteration++;
             if ((totalArrivalRate * 1000) > (size * poll)) {
@@ -347,17 +348,17 @@ public class Scaler {
             }
         } else {//the model is trained proactive autoscale
             double y1 = Double.parseDouble(String.valueOf((totalArrivalRate * 1000)));
-            log.info(" iteration {} last time  prediction  and arrival rate {}", iteration, (float) (prediction));
+            log.info(" iteration {} last time  prediction  of arrival rate {}", iteration, (float) (prediction));
             log.info(" iteration {} current actual value of  arrival rate = {}", iteration, y1);
-            rls.add_obs(X.transpose(), y1);
-            for (int j = 0; j < 3; j++)
-                Xx[0][j] = Xx[0][j + 1];
+            rls.add_obs(regMatrix.transpose(), y1);
+            for (int j = 0; j < num_vars - 1; j++)
+                regArr[0][j] = regArr[0][j + 1];
 
-            Xx[0][3] = y1;
+            regArr[0][num_vars-1] = y1;
 
-            X = new Array2DRowRealMatrix(Xx);
-            log.info(X);
-            prediction = (rls.getW().transpose().multiply(X.transpose())).getEntry(0, 0);
+            regMatrix = new Array2DRowRealMatrix(regArr);
+            log.info(regMatrix);
+            prediction = (rls.getW().transpose().multiply(regMatrix.transpose())).getEntry(0, 0);
             log.info(" Iteration {} prediction for next  arrival rate is {}", iteration, (float) (prediction));
 
             if ((prediction) > (size * poll) /*|| (totalArrivalRate*1000) > (size *poll)*/) /*totalConsumptionRate *1000*/ {
@@ -384,7 +385,7 @@ public class Scaler {
                     if (replicas > 1) {
                         k8s.apps().deployments().inNamespace("default").withName("cons1persec").scale(replicas - 1);
                         // firstIteration = true;
-                        scaled = true;
+                        //scaled = true;
                         //firstIteration = true;
                         start = Instant.now();
                         log.info("since   arrival rate {} is lower than max   consumption rate  with size -1 times dth, I down scaled  by one {}",
@@ -668,7 +669,7 @@ public class Scaler {
 
 
 
-/////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
 
     static void scaleDecision3(Map<String, ConsumerGroupDescription> consumerGroupDescriptionMap) {
