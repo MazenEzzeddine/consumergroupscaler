@@ -61,6 +61,7 @@ public class Scaler {
     static double prediction = 0;
     private static Instant start = null;
     static long elapsedTime;
+    static String BOOTSTRAP_SERVERS;
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         //TODO Externalize topic, cluster name, and all configurations
@@ -76,6 +77,7 @@ public class Scaler {
         dth= Float.parseFloat(System.getenv("dth"));
         CONSUMER_GROUP = System.getenv("CONSUMER_GROUP");
         mode = System.getenv("Mode");
+        BOOTSTRAP_SERVERS = System.getenv("BOOTSTRAP_SERVERS");
 
 
         log.info("sleep is {}", sleep);
@@ -87,7 +89,7 @@ public class Scaler {
         log.info("dth is {}", dth);
 
         Properties props = new Properties();
-        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "my-cluster-kafka-bootstrap:9092");
+        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 3000);
         props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, 3000);
         admin = AdminClient.create(props);
@@ -762,6 +764,9 @@ public class Scaler {
         log.info("=================================:");
     }
 }
+
+
+
 
 
 
