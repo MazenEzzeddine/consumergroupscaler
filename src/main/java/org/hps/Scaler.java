@@ -90,8 +90,8 @@ public class Scaler {
 
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 3000);
-        props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, 3000);
+        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 6000);
+        props.put(AdminClientConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, 6000);
         admin = AdminClient.create(props);
         /////////////////////////////////////////////////////////////
         num_vars = 4;
